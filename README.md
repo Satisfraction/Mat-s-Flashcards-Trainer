@@ -12,7 +12,7 @@ Die Verschlüsselungsdatei kann mit dem in diesem Repository enthaltenen Python-
 Installation
 Laden Sie die flashcards.json-Datei und die key.txt-Datei in das Programmverzeichnis, sofern bereits vorhanden.
 
-Erstellen Sie die key.txt-Datei, wenn Sie sie noch nicht haben, indem Sie cryptkey.py ausführen.
+Erstellen Sie die key.txt-Datei, wenn Sie sie noch nicht haben, indem Sie cryptkey.py ausführen. (Diese wird zum Ver-/Entschlüsseln der score.txt Datei benötigt)
 
 Führen Sie das Programm aus, indem Sie MatsFlashcardTrainer.py ausführen.
 
