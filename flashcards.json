@@ -68,3 +68,18 @@
 {"question": "Search for pattern recursively in dir", "answer": "grep -r 'pattern' dir"}
 {"question": "Find all instances of file", "answer": "locate file"}
 {"question": "Show possible locations of app", "answer": "whereis app"}
+{"question": "View a file page by page", "answer": "less"}
+{"question": "Output the the contents of file", "answer": "more"}
+{"question": "Output the first 10 lines of file", "answer": "head"}
+{"question": "Output the last 10 lines of file", "answer": "tail"}
+{"question": "Display file page by page", "answer": "page"}
+{"question": "View first 20 lines of file", "answer": "head -20 file"}
+{"question": "View last 20 lines of file", "answer": "tail -20 file"}
+{"question": "Create file and allow to write", "answer": "cat > filename"}
+{"question": "Remove a empty directory", "answer": "rmdir"}
+{"question": "Remove a directory", "answer": "rm -rf"}
+{"question": "Find content difference in 2 files", "answer": "diff"}
+{"question": "Search and replace particular pattern", "answer": "sed"}
+{"question": "Show what kind of file it is", "answer": "file"}
+{"question": "List all commands executed by a user", "answer": "history"}
+{"question": "Free memory of a server", "answer": "free"}
