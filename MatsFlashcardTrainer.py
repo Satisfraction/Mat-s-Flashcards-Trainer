@@ -102,8 +102,17 @@ def save_score_to_file(score):
 def exit_handler():
     save_score_to_file(score)
 
-# Create main window and UI elements
+atexit.register(exit_handler)
+
+def center_window(root, width=1400, height=800):
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x = (screen_width // 2) - (width // 2)
+    y = (screen_height // 2) - (height // 2)
+    root.geometry(f"{width}x{height}+{x}+{y}")
+
 root = tk.Tk()
+center_window(root, 1400, 800)
 root.title('Mat´s Flashcards Trainer')
 root.config(bg='#f2f2f2', padx=20, pady=20)
 
@@ -137,6 +146,14 @@ switch_button.grid(row=4, column=1, pady=10)
 next_button = tk.Button(root, text='Next', command=next_card, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
 next_button.grid(row=4, column=2, pady=10)
 
+# create button widget for the "mode" button
+mode_button = tk.Button(root, text='Switch Mode', command=switch_mode, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
+mode_button.grid(row=5, column=1, pady=10)
+
+# create button widget for the "check answer" button
+check_button = tk.Button(root, text='Check Answer', command=check_answer, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
+check_button.grid(row=6, column=0, columnspan=3, pady=10)
+
 # create a label widget to display the actual score
 score_label = tk.Label(root, text='Score: 0', font=('Gothik', 16))
 score_label.grid(row=7, column=1)
@@ -145,21 +162,9 @@ score_label.grid(row=7, column=1)
 highscore_label = tk.Label(root, text=f"Highscore: {highscore}", font=('Gothik', 20))
 highscore_label.grid(row=8, column=1)
 
-# create button widget for the "switch mode" button
-switch_mode_button = tk.Button(root, text='Switch Mode', command=switch_mode, bg='#f2f2f2', fg='#3D3D3D')
-switch_mode_button.grid(row=5, column=0, columnspan=3, pady=10)
+# set the column weights to make the buttons appear in the center
+root.columnconfigure(0, weight=1)
+root.columnconfigure(1, weight=1)
+root.columnconfigure(2, weight=1)
 
-# create button widget for the "check answer" button
-check_button = tk.Button(root, text='Check Answer', command=check_answer, bg='#f2f2f2', fg='#3D3D3D')
-check_button.grid(row=6, column=0, columnspan=3, pady=10)
-
-# Set padding between buttons and flashcard label
-root.grid_columnconfigure(0, pad=50)
-root.grid_columnconfigure(1, pad=50)
-root.grid_columnconfigure(2, pad=50)
-
-# Register exit handler to save score
-atexit.register(exit_handler)
-
-# Start main loop
 root.mainloop()
