@@ -1,170 +1,259 @@
+# Import necessary libraries
 from cryptography.fernet import Fernet
-import tkinter as tk
-from tkinter import messagebox
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QPushButton,
+    QLineEdit,
+    QHBoxLayout,
+    QMessageBox,
+)
 import atexit
 import json
 
-# Load flashcards from JSON file
-with open('flashcards.json') as f:
-    flashcards = [json.loads(line) for line in f]
+# Create a class for the flashcard trainer
+class FlashcardsTrainer(QWidget):
+    def __init__(self):
+        # Initialize the QWidget
+        super().__init__()
+        # Set the geometry of the QWidget
+        self.setGeometry(100, 100, 1000, 400)
 
-from cryptography.fernet import Fernet
+        # Load flashcards from JSON file
+        with open("flashcards.json") as f:
+            self.flashcards = [json.loads(line) for line in f]
 
-# Load encryption key
-with open('key.txt', 'rb') as f:
-    key = f.read()
+        # Load encryption key
+        with open("key.txt", "rb") as f:
+            self.key = f.read()
 
-# Load scores from file
-try:
-    with open('scores.txt', 'rb') as f:
-        fernet = Fernet(key)
-        decrypted_scores = [int(fernet.decrypt(line.strip()).decode()) for line in f.readlines()]
+        # Load scores from file
+        try:
+            with open("scores.txt", "rb") as f:
+                fernet = Fernet(self.key)
+                decrypted_scores = [
+                    int(fernet.decrypt(line.strip()).decode()) for line in f.readlines()
+                ]
 
-        # Find highest score
-        highscore = max(decrypted_scores) if decrypted_scores else 0
-except (FileNotFoundError, ValueError):
-    highscore = 0
+                # Find highest score
+                self.highscore = max(decrypted_scores) if decrypted_scores else 0
+        except (FileNotFoundError, ValueError):
+            self.highscore = 0
 
-# Initialize global variables
-score = 0
-current_card = 0
-current_mode = 'Learn Mode'
+        # Initialize global variables
+        self.score = 0
+        self.current_card = 0
+        self.current_mode = "Learn Mode"
 
-# Define UI elements and functions
-def show_question():
-    card_label.config(text=flashcards[current_card]['question'])
-    switch_button.config(text='Show Answer', command=show_answer)
+        # Define UI elements and functions
+        # Create a QLabel object with text "Welcome to Mat's Flashcard Trainer"
+        # Set the alignment of the label to center
+        # Set the font size to 36pt, color to #333, and font weight to bold
+        self.title_label = QLabel("Welcome to Mat's Flashcard Trainer")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet("font-size: 36pt; color: #333; font-weight: bold;")
 
-def show_answer():
-    card_label.config(text=flashcards[current_card]['answer'])
-    switch_button.config(text='Show Question', command=show_question)
+        # Create a QLabel object with text "Learn Mode"
+        # Set the font size to 18pt, color to #333, and font weight to bold
+        self.mode_label = QLabel("Learn Mode")
+        self.mode_label.setStyleSheet("font-size: 18pt; color: #333; font-weight: bold;")
 
-def prev_card():
-    global current_card
-    if current_card > 0:
-        current_card -= 1
-        show_question()
+        # Create a QLabel object with an empty text
+        # Set the font size to 48pt, color to #333, background color to #FFF, border to 2px solid #333, and padding to 20px
+        # Set the alignment of the label to center
+        self.card_label = QLabel("")
+        self.card_label.setStyleSheet("font-size: 48pt; color: #333; background-color: #FFF; border: 2px solid #333; padding: 20px;")
+        self.card_label.setAlignment(Qt.AlignCenter)
 
-def next_card():
-    global current_card
-    if current_card < len(flashcards) - 1:
-        current_card += 1
-        show_question()
+        # Create a QLineEdit object for user input
+        # Disable the user input
+        # Set the font size to 24pt, color to #333, border to 2px solid #333, and padding to 10px
+        self.answer_entry = QLineEdit()
+        self.answer_entry.setEnabled(False)
+        self.answer_entry.setStyleSheet("font-size: 24pt; color: #333; border: 2px solid #333; padding: 10px;")
 
-def switch_mode():
-    global current_mode
-    if current_mode == 'Learn Mode':
-        current_mode = 'Test Mode'
-        switch_button.config(state='disabled')
-        answer_entry.config(state='normal')
-        card_label.config(text=flashcards[current_card]['question'])
-    else:
-        current_mode = 'Learn Mode'
-        switch_button.config(state='normal', text='Show Answer', command=show_answer)
-        answer_entry.config(state='disabled')
-        card_label.config(text='')
+        # Create a QPushButton object with text "Prev"
+        # Set the font size to 18pt, color to #FFF, background color to #333, and padding to 10px
+        # Connect the clicked signal to the prev_card function
+        self.prev_button = QPushButton("Prev")
+        self.prev_button.setStyleSheet("font-size: 18pt; color: #FFF; background-color: #333; padding: 10px;")
+        self.prev_button.clicked.connect(self.prev_card)
 
-        mode_label.config(text=current_mode)
+        # Create a QPushButton object with text "Show Answer"
+        # Set the font size to 18pt, color to #FFF, background color to #333, and padding to 10px
+        # Connect the clicked signal to the show_answer function
+        self.switch_button = QPushButton("Show Answer")
+        self.switch_button.setStyleSheet("font-size: 18pt; color: #FFF; background-color: #333; padding: 10px;")
+        self.switch_button.clicked.connect(self.show_answer)
 
-def check_answer():
-    global score
-    user_answer = answer_entry.get()
-    correct_answer = flashcards[current_card]["answer"]
-    if user_answer == correct_answer:
-        card_label.config(text="Correct!")
-        score += 1
-    else:
-        card_label.config(text=f"Incorrect. The correct answer is {correct_answer}.")
-    answer_entry.delete(0, tk.END)
-    score_label.config(text=f"Score: {score}")
+        # Create a QPushButton object with text "Next"
+        # Set the font size to 18pt, color to #FFF, background color to #333, and padding to 10px
+        # Connect the clicked signal to the next_card function
+        self.next_button = QPushButton("Next")
+        self.next_button.setStyleSheet("font-size: 18pt; color: #FFF; background-color: #333; padding: 10px;")
+        self.next_button.clicked.connect(self.next_card)
 
-def save_score_to_file(score):
-    root = tk.Tk()
-    root.withdraw()
-    user_choice = messagebox.askyesno('Save Score', 'Do you want to save your score?')
-    if user_choice:
-        key = Fernet.generate_key()
-        fernet = Fernet(key)
-        encrypted_score = fernet.encrypt(str(score).encode())
+        # Create a QPushButton object with text "Switch Mode"
+        # Set the font size to 18pt, color to #FFF, background color to #333, and padding to 10px
+        # Connect the clicked signal to the switch_mode function
+        self.mode_button = QPushButton("Switch Mode")
+        self.mode_button.setStyleSheet("font-size: 18pt; color: #FFF; background-color: #333; padding: 10px;")
+        self.mode_button.clicked.connect(self.switch_mode)
 
-        with open('scores.txt', 'ab') as f:
-            f.write(encrypted_score + b'\n')
+        # Create a QPushButton object with text "Check Answer"
+        # Set the font size to 18pt, color to #FFF, background color to #333, and padding to 10px
+        # Connect the clicked signal to the check_answer function
+        self.check_button = QPushButton("Check Answer")
+        self.check_button.setStyleSheet("font-size: 18pt; color: #FFF; background-color: #333; padding: 10px;")
+        self.check_button.clicked.connect(self.check_answer)
 
-        with open('key.txt', 'wb') as f:
-            f.write(key)
+        # Create a QLabel object with text "Score: 0"
+        # Set the font size to 18pt, color to #333, and font weight to bold
+        self.score_label = QLabel("Score: 0")
+        self.score_label.setStyleSheet("font-size: 18pt; color: #333; font-weight: bold;")
 
-        messagebox.showinfo('Score Saved', 'Score saved successfully!')
-    else:
-        messagebox.showinfo('Score Not Saved', 'Score not saved.')
+        # Create a QLabel object with text "Highscore: {self.highscore}"
+        # Set the font size to 18pt, color to #333, and font weight to bold
+        self.highscore_label = QLabel(f"Highscore: {self.highscore}")
+        self.highscore_label.setStyleSheet("font-size: 18pt; color: #333; font-weight: bold;")
 
-    root.destroy()
+        # Create a vertical box layout
+        vbox = QVBoxLayout()
+        # Add the title label to the vertical box layout
+        vbox.addWidget(self.title_label)
+        # Add the mode label to the vertical box layout
+        vbox.addWidget(self.mode_label)
+        # Add the card label to the vertical box layout
+        vbox.addWidget(self.card_label)
+        # Add the answer entry to the vertical box layout
+        vbox.addWidget(self.answer_entry)
 
-def exit_handler():
-    save_score_to_file(score)
+        # Create a horizontal box layout
+        hbox = QHBoxLayout()
+        # Add the previous button to the horizontal box layout
+        hbox.addWidget(self.prev_button)
+        # Add the switch button to the horizontal box layout
+        hbox.addWidget(self.switch_button)
+        # Add the next button to the horizontal box layout
+        hbox.addWidget(self.next_button)
+        # Add the horizontal box layout to the vertical box layout
+        vbox.addLayout(hbox)
 
-atexit.register(exit_handler)
+        # Add the mode button to the vertical box layout
+        vbox.addWidget(self.mode_button)
+        # Add the check button to the vertical box layout
+        vbox.addWidget(self.check_button)
+        # Add the score label to the vertical box layout
+        vbox.addWidget(self.score_label)
+        # Add the highscore label to the vertical box layout
+        vbox.addWidget(self.highscore_label)
 
-def center_window(root, width=1400, height=800):
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    x = (screen_width // 2) - (width // 2)
-    y = (screen_height // 2) - (height // 2)
-    root.geometry(f"{width}x{height}+{x}+{y}")
+        # Set the layout of the QWidget to the vertical box layout
+        self.setLayout(vbox)
 
-root = tk.Tk()
-center_window(root, 1400, 800)
-root.title('Mat´s Flashcards Trainer')
-root.config(bg='#f2f2f2', padx=20, pady=20)
+        # Save score to file on exit
+        atexit.register(self.save_score_to_file)
 
-# create a label widget to display the title
-title_label = tk.Label(root, text='Welcome to\nMat´s Flashcard Trainer', font=("Verdana", 20), bg='#F3EFEF')
-title_label.grid(row=0, column=0, columnspan=3, pady=10)
+        # Show the QWidget
+        self.show()
 
-# create a label widget to display the actual mode
-mode_label = tk.Label(root, text='Learn Mode', font=("Verdana", 14))
-mode_label.grid(row=1, column=0, columnspan=3, pady=10)
+    # Function to show the question of the current flashcard
+    def show_question(self):
+        self.card_label.setText(self.flashcards[self.current_card]["question"])
+        self.switch_button.setText("Show Answer")
+        self.switch_button.clicked.disconnect()
+        self.switch_button.clicked.connect(self.show_answer)
 
-# create a label widget to display the "question/answer" flashcard
-card_label = tk.Label(root, text='', font=('Arial', 32), bg='#E1DADA', padx=20, pady=20)
-card_label.grid(row=2, column=0, columnspan=3, pady=20)
-card_label.configure(justify='center')
+    # Function to show the answer of the current flashcard
+    def show_answer(self):
+        self.card_label.setText(self.flashcards[self.current_card]["answer"])
+        self.switch_button.setText("Show Question")
+        self.switch_button.clicked.disconnect()
+        self.switch_button.clicked.connect(self.show_question)
 
-# create a entry widget for the answer entry
-answer_entry = tk.Entry(root, state='disabled', width=40)
-answer_entry.grid(row=3, column=0, columnspan=3, pady=10)
-answer_entry.configure(justify='center')
+    # Function to move to the previous flashcard
+    def prev_card(self):
+        if self.current_card < len(self.flashcards) - 1:
+            self.current_card -= 1
+            self.show_question()
 
-# create button widget for the "previous" button
-prev_button = tk.Button(root, text='Prev', command=prev_card, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
-prev_button.grid(row=4, column=0, pady=10)
+    # Function to move to the next flashcard
+    def next_card(self):
+        if self.current_card < len(self.flashcards) - 1:
+            self.current_card += 1
+            self.show_question()
 
-# create button widget for the "switch" button
-switch_button = tk.Button(root, text='Show Answer', command=show_answer, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
-switch_button.grid(row=4, column=1, pady=10)
+    # Function to switch between learn mode and test mode
+    def switch_mode(self):
+        if self.current_mode == "Learn Mode":
+            self.current_mode = "Test Mode"
+            self.switch_button.setEnabled(False)
+            self.answer_entry.setEnabled(True)
+            self.card_label.setText(self.flashcards[self.current_card]["question"])
+        else:
+            self.current_mode = "Learn Mode"
+            self.switch_button.setEnabled(True)
+            self.switch_button.setText("Show Answer")
+            self.switch_button.clicked.disconnect()
+            self.switch_button.clicked.connect(self.show_answer)
+            self.answer_entry.setEnabled(False)
+            self.card_label.setText("")
+        self.mode_label.setText(self.current_mode)
 
-# create button widget for the "next" button
-next_button = tk.Button(root, text='Next', command=next_card, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
-next_button.grid(row=4, column=2, pady=10)
+    # Function to check the user's answer
+    def check_answer(self):
+        user_answer = self.answer_entry.text()
+        correct_answer = self.flashcards[self.current_card]["answer"]
+        if user_answer == correct_answer:
+            self.card_label.setText("Correct!")
+            self.score += 1
+        else:
+            self.card_label.setText(
+                f"Incorrect. The correct answer is {correct_answer}."
+            )
+        self.answer_entry.clear()
+        self.score_label.setText(f"Score: {self.score}")
 
-# create button widget for the "mode" button
-mode_button = tk.Button(root, text='Switch Mode', command=switch_mode, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
-mode_button.grid(row=5, column=1, pady=10)
+    # Function to save the user's score to a file
+    def save_score_to_file(self):
+        user_choice = QMessageBox.question(
+            self,
+            "Save Score",
+            "Do you want to save your score?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if user_choice == QMessageBox.Yes:
+            key = Fernet.generate_key()
+            fernet = Fernet(key)
+            encrypted_score = fernet.encrypt(str(self.score).encode())
 
-# create button widget for the "check answer" button
-check_button = tk.Button(root, text='Check Answer', command=check_answer, bg='#FFCD5C', fg='#3D3D3D', padx=10, pady=10)
-check_button.grid(row=6, column=0, columnspan=3, pady=10)
+            with open("scores.txt", "ab") as f:
+                f.write(encrypted_score + b"\n")
 
-# create a label widget to display the actual score
-score_label = tk.Label(root, text='Score: 0', font=('Gothik', 16))
-score_label.grid(row=7, column=1)
+            with open("key.txt", "wb") as f:
+                f.write(key)
 
-# create a label widget to display the highscore
-highscore_label = tk.Label(root, text=f"Highscore: {highscore}", font=('Gothik', 20))
-highscore_label.grid(row=8, column=1)
+            QMessageBox.information(
+                self, "Score Saved", "Score saved successfully!"
+            )
 
-# set the column weights to make the buttons appear in the center
-root.columnconfigure(0, weight=1)
-root.columnconfigure(1, weight=1)
-root.columnconfigure(2, weight=1)
+        else:
+            QMessageBox.information(
+                self, "Score Not Saved", "Score not saved."
+            )
 
-root.mainloop()
+    # Function to save the user's score to a file when the window is closed
+    def closeEvent(self, event):
+        self.save_score_to_file()
+        event.accept()
+
+# Run the application
+if __name__ == "__main__":
+    app = QApplication([])
+    flashcards_trainer = FlashcardsTrainer()
+    app.exec_()
+
