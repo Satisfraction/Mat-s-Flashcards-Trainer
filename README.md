@@ -1,30 +1,29 @@
 # Mat-s-Flashcards-Trainer
 
-Dies ist ein einfaches Programm zum Lernen von Flashcards. Es lädt Flashcards aus einer JSON-Datei und ermöglicht es dem Benutzer, durch die Karten zu navigieren und die Antworten anzuzeigen.
+The "Flashcards Trainer" is a PyQt5-based desktop application that helps users learn and test their knowledge of a subject using flashcards. 
 
-Voraussetzungen:
-Um das Programm zu verwenden, benötigen Sie eine JSON-Datei mit Ihren Flashcards und eine Verschlüsselungsdatei.
+This program was created by Satisfraction and is licensed under the MIT license.
 
-Die JSON-Datei, flashcards.json, mit den Flashcards kann mit Mat's Flashcard Creator erstellt werden. (https://github.com/Satisfraction/Mat-s-Flashcard-Creator)
+## Functionality
 
-Die Verschlüsselungsdatei kann mit dem in diesem Repository enthaltenen Python-Code cryptkey.py erstellt werden.
+The application loads flashcards from a JSON file (`flashcards.json`) and displays them one by one on the screen. The flashcards file should be located in the same directory as the application. The user can then switch between "Learn Mode" and "Test Mode" to either learn the flashcards or test their knowledge using the flashcards.
 
-Installation:
-Laden Sie die flashcards.json-Datei und die key.txt-Datei in das Programmverzeichnis, sofern bereits vorhanden.
+In "Learn Mode", the user can view the question and answer of each flashcard by clicking on a button. In "Test Mode", the user is presented with the question of each flashcard and is expected to type in the correct answer. The application keeps track of the user's score and displays it on the screen. The user can also save their score to a file when they exit the application.
 
-Erstellen Sie die key.txt-Datei, wenn Sie sie noch nicht haben, indem Sie cryptkey.py ausführen. (Diese wird zum Ver-/Entschlüsseln der score.txt Datei benötigt)
+The application also requires a key file (`key.txt`) to securely store the user's score. The key file should be created using the `cryptkey.py` script provided in the repository.
 
-Führen Sie das Programm aus, indem Sie MatsFlashcardTrainer.py ausführen.
+## Libraries Used
 
-Verwendung:
-Das Programm startet im "Learn Mode". Sie können zwischen "Learn Mode" und "Test Mode" wechseln, indem Sie auf den "Switch Mode"-Button klicken.
+The application uses the following libraries:
+- cryptography
+- PyQt5.QtCore
+- PyQt5.QtGui
+- PyQt5.QtWidgets
 
-Im "Learn Mode" können Sie durch Ihre Flashcards navigieren, indem Sie auf den "Prev"- oder "Next"-Button klicken. Die Antwort wird durch Klicken auf die Schaltfläche "Show Answer" angezeigt.
+## Programming Language
 
-Im "Test Mode" wird die Antwort in einem Textfeld eingegeben. Klicken Sie auf "Check Answer", um Ihre Antwort zu überprüfen. Wenn Sie richtig antworten, wird Ihre Punktzahl um eins erhöht. Sie können Ihre Punktzahl jederzeit beim beenden des Programms speichern.
+The application is written in Python and uses object-oriented programming principles to create a class called "FlashcardsTrainer", which represents the main window of the application. The class contains various UI elements and functions that handle the logic of the application.
 
-Autor:
-Mat's Flashcards Trainer wurde von Satisfraction entwickelt.
+## Documentation and Style
 
-Lizenz:
-Dieses Programm ist unter der MIT-Lizenz lizenziert. Weitere Informationen finden Sie in der LICENSE-Datei.
+The application is well-documented and adheres to PEP8 style guidelines.
